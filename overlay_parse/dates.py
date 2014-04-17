@@ -74,7 +74,7 @@ matchers = [
     ('day', mf(r"([012]?[1-9]|3[01])", {'day', 'num'}, rx_int)),
 
     ('day_numeric', mf(w(r"(11th|12th|13th|[012]?[4-9]th|[123]0th|[0-3]1st|[02]2nd|023rd)"),
-                       {'day', 'num', 'numeric'}, rx_int_extra)),
+                       {'day', 'numeric'}, rx_int_extra)),
 
     # Note that regexes are greedy. If there is '07' then '7' alone
     # will be ignored
@@ -99,7 +99,7 @@ matchers = [
 
     # Lists
     # July the 14th
-    ('dayn_month_date', mf([{'month', 'name'}, r",?\s*(the)?\s+", {'day', 'num'}],
+    ('dayn_month_date', mf([{'month', 'name'}, r",?\s*(the)?\s+", {'day', 'numeric'}],
                            {"day_month", "numeric", "date"}, date_tuple)),
 
     # July the 14th 1991
