@@ -1,5 +1,5 @@
 import re
-from pprint import pprint
+from datetime import date
 
 from overlays import OverlayedText, Rng
 from matchers import mf
@@ -13,7 +13,7 @@ def date_range(ovls):
     return (ovls[0].value, ovls[2].value)
 
 def present(rxmatch):
-    d = date.today
+    d = date.today()
     return (d.day, d.month, d.year)
 
 def date_tuple(ovls):
@@ -34,7 +34,7 @@ def date_tuple(ovls):
             year = o.value
 
         if 'date' in o.props:
-            day, month, year = [o or n for o, n in zip((day, month,
+            day, month, year = [(o or n) for o, n in zip((day, month,
                                                         year), o.value)]
 
     return (day, month, year)
@@ -74,7 +74,7 @@ matchers = [
     ('day', mf(r"([012]?[1-9]|3[01])", {'day', 'num'}, rx_int)),
 
     ('day_numeric', mf(w(r"(11th|12th|13th|[012]?[4-9]th|[123]0th|[0-3]1st|[02]2nd|023rd)"),
-                       {'day', 'num'}, rx_int_extra)),
+                       {'day', 'num', 'numeric'}, rx_int_extra)),
 
     # Note that regexes are greedy. If there is '07' then '7' alone
     # will be ignored
@@ -118,12 +118,12 @@ matchers = [
                     date_tuple)),
 
     # 3000AD
-    ("far_year", mf({"year"},
-                    {"date", "only year"},
+    ("far_year", mf([{"year"}],
+                    {"date", "only_year"},
                     date_tuple)),
 
     # Present
-    ('present', mf(r"[pP]resent", {"date", "present"}, present)),
+    ('present', mf(r"([pP]resent|[Tt]oday|[Nn]ow)", {"date", "present"}, present)),
 
     # Date range
     ("range", mf([{"date"}, r"\s*(-|\sto\s|\suntil\s)\s*", {"date"}],
@@ -165,5 +165,7 @@ def just_ranges(text):
 
 
 if __name__ == "__main__":
+    from pprint import pprint
+
     pprint(just_dates("Timestamp: 22071991, well\
     i said i was on July 22 1992 but I lied."))

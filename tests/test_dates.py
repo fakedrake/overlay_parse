@@ -31,10 +31,12 @@ class TestDates(unittest.TestCase):
     def test_range(self):
         rng = just_ranges("I will be there from 2008 to 2009")
 
-        self.assertEqual(rng, "")
+        self.assertEqual(rng, [((0, 0, 2008), (0, 0, 2009))])
 
     def test_present(self):
-        pass
+        rng = just_ranges("I will stay from July the 20th until today")
+
+        self.assertEqual(rng, [((20, 7, 0), (17, 4, 2014))])
 
     def tearDown(self):
         pass
