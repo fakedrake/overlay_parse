@@ -9,18 +9,37 @@
 
 Make sense of free text with overlays.
 
-* features
-* and stuff
-
 ## Usage
 
 Install `overlay_parse`:
 
     pip install overlay_parse
+	python setup.py install
 
-## Documentation
+As a small demo on how you well you can parse dates:
 
-[API Documentation](http://overlay_parse.rtfd.org)
+
+	>>> from overlay_parse import date
+	>>> dates.just_dates("I shall come on July the 17th 1991")
+	[(17, 7, 1991)]
+	>>> dates.just_dates("I shall 30th of september 2006")
+	[(30, 9, 2006)]
+	>>> dates.just_dates("I shall 30th of september 2006, timestamp: 19071991, 18.7.1991")
+	[(19, 7, 1991), (18, 7, 1991), (30, 9, 2006)]
+
+You can also parse date ranges with
+
+	>>> dates.just_ranges("I will be here from 30th of september 2006-2007")
+	[((30, 9, 2006), (0, 0, 2007))]
+	>>> dates.just_ranges("I will be here from 30th of september 2006 to 18.7.2007")
+	[((30, 9, 2006), (18, 7, 2007))]
+	>>> dates.just_ranges("200 BC - 300 AD")
+	[((0, 0, -200), (0, 0, 300))]
+	>>>
+
+<!-- ## Documentation -->
+
+<!-- [API Documentation](http://overlay_parse.rtfd.org) -->
 
 ## Testing
 

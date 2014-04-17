@@ -28,10 +28,19 @@ class TestDates(unittest.TestCase):
         self.assertIn((18, 4, 0), dates)
         self.assertIn((26, 4, 2014), dates)
 
+    def test_bc(self):
+        dates = just_dates("200 AD 300 b.c.")
+
+        self.assertIn((0,0,-300), dates)
+
     def test_range(self):
         rng = just_ranges("I will be there from 2008 to 2009")
 
         self.assertEqual(rng, [((0, 0, 2008), (0, 0, 2009))])
+
+    def test_range_incoherent(self):
+         rng = just_ranges("I will be here from 30th of september 2006 to 18.7.2007")
+         self.assertEqual(rng, [((30, 9, 2006), (18, 7, 2007))])
 
     def test_present(self):
         rng = just_ranges("I will stay from July the 20th until today")

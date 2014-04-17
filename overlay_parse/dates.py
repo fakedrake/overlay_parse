@@ -9,8 +9,19 @@ def month_names(rxmatch):
     for i,m in enumerate(MONTH_NAMES_LONG):
         if starts_with(m, rxmatch.group(0)):
             return i+1
+
 def date_range(ovls):
-    return (ovls[0].value, ovls[2].value)
+    d1 = ovls[0].value
+    d2 = ovls[2].value
+
+    for i1,i2 in reversed(zip(d1, d2)):
+        if i1 > i2:
+            return (d2, d1)
+
+        if i2 > i1:
+            return (d1, d2)
+
+    return (d1, d2)
 
 def present(rxmatch):
     d = date.today()
@@ -35,7 +46,7 @@ def date_tuple(ovls):
 
         if 'date' in o.props:
             day, month, year = [(o or n) for o, n in zip((day, month,
-                                                        year), o.value)]
+                                                          year), o.value)]
 
     return (day, month, year)
 
@@ -82,10 +93,10 @@ matchers = [
 
     ('year_4', mf(r"\d{4}", {'year', '4dig', 'num', "ad"}, rx_int)),
 
-    ('year_num', mf(r"\d+\s*(A?\.D?\.)?", {'year', 'adbc', 'num', "ad"},
-                    rx_int)),
+    ('year_num', mf(r"\d+\s*([Aa]\.?[Dd]\.?)?", {'year', 'adbc', 'num', "ad"},
+                    rx_int_extra)),
 
-    ('year_adbc', mf(w(r"\d+\s*(B?\.C?\.)"), {"year", "adbc", "bc"},
+    ('year_adbc', mf(w(r"\d+\s*([Bb]\.?[Cc]\.?)"), {"year", "adbc", "bc"},
                      lambda rxmatch: -rx_int_extra(rxmatch))),
 
     ('month_name_short', mf(re.compile(r"(%s)" % "|".join(words(MONTH_NAMES_SHORT)), re.I),
@@ -124,10 +135,6 @@ matchers = [
 
     # Present
     ('present', mf(r"([pP]resent|[Tt]oday|[Nn]ow)", {"date", "present"}, present)),
-
-    # Date range
-    ("range", mf([{"date"}, r"\s*(-|\sto\s|\suntil\s)\s*", {"date"}],
-                 {"range"}, date_range)),
 ]
 
 # Short dates
@@ -148,20 +155,26 @@ matchers += [('ymd_dates_%s' % s,
                  {"date", 'short', 'ymd', "sep_%s"%s}, date_tuple))
              for s in SEPARATORS]
 
+matchers += [
+    # Date range
+    ("range", mf([{"date"}, r"\s*(-|\sto\s|\suntil\s)\s*", {"date"}],
+                 {"range"}, date_range)),
+]
+
 
 def just_dates(text):
     t = OverlayedText(text)
     t.overlay([m for n,m in matchers])
 
     return [i.value for i in
-        longest_overlap(t.get_overlays(props={'date'}))]
+            longest_overlap(t.get_overlays(props={'date'}))]
 
 def just_ranges(text):
     t = OverlayedText(text)
     t.overlay([m for n,m in matchers])
 
     return [i.value for i in
-        longest_overlap(t.get_overlays(props={'range'}))]
+            longest_overlap(t.get_overlays(props={'range'}))]
 
 
 if __name__ == "__main__":
