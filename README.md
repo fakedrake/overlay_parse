@@ -1,9 +1,9 @@
 # overlay_parse
 
-[![Build Status](https://secure.travis-ci.org/fakedrake/overlay_parse.png)](http://travis-ci.org/fakedrake/overlay-parse)
-[![Stories in Ready](https://badge.waffle.io/fakedrake/overlay_parse.png?label=ready)](https://waffle.io/fakedrake/overlay-parse) [![pypi version](https://badge.fury.io/py/overlay-parse.png)](http://badge.fury.io/py/overlay-parse)
-[![# of downloads](https://pypip.in/d/overlay_parse/badge.png)](https://crate.io/packages/overlay-parse?version=latest)
-[![code coverage](https://coveralls.io/repos/fakedrake/overlay_parse/badge.png?branch=master)](https://coveralls.io/r/fakedrake/overlay-parse?branch=master)
+[![Build Status](https://secure.travis-ci.org/fakedrake/overlay_parse.png)](http://travis-ci.org/fakedrake/overlay_parse)
+[![Stories in Ready](https://badge.waffle.io/fakedrake/overlay_parse.png?label=ready)](https://waffle.io/fakedrake/overlay_parse) [![pypi version](https://badge.fury.io/py/overlay_parse.png)](http://badge.fury.io/py/overlay_parse)
+[![# of downloads](https://pypip.in/d/overlay_parse/badge.png)](https://crate.io/packages/overlay_parse?version=latest)
+[![code coverage](https://coveralls.io/repos/fakedrake/overlay_parse/badge.png?branch=master)](https://coveralls.io/r/fakedrake/overlay_parse?branch=master)
 
 ## Overview
 
