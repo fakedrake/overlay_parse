@@ -1,14 +1,20 @@
 import re
 from pprint import pprint
 
-from .overlays import OverlayedText, Rng
-from .matchers import mf
-from .util import *
+from overlays import OverlayedText, Rng
+from matchers import mf
+from util import *
 
 def month_names(rxmatch):
     for i,m in enumerate(MONTH_NAMES_LONG):
         if starts_with(m, rxmatch.group(0)):
             return i+1
+def date_range(ovls):
+    return (ovls[0].value, ovls[2].value)
+
+def present(rxmatch):
+    d = date.today
+    return (d.day, d.month, d.year)
 
 def date_tuple(ovls):
     """
@@ -88,8 +94,6 @@ matchers = [
     ('month_name_long', mf(re.compile(r"(%s)" % "|".join(words(MONTH_NAMES_LONG)), re.I),
                            {"month", "name", "long"}, month_names)),
 
-
-
     # Note that instead of rx or sets you can use a matcher, it will
     # be a dependency
 
@@ -104,9 +108,26 @@ matchers = [
                                 date_tuple)),
 
     # 14 July 1991
-    ('day_month_year_full', mf([{"day"}, r"\s+", {"month", "name"}, r"\s+", {"year"}],
+    ('day_month_year_full', mf([{"day"}, r"\s+(of\s+)?", {"month", "name"}, r"\s+", {"year"}],
                                { "day_month_year", "date"},
                                date_tuple)),
+
+    # June 1991
+    ("far_year", mf([{"month", "name"}, r"\s+", {"year"}],
+                    {"date", "year_month"},
+                    date_tuple)),
+
+    # 3000AD
+    ("far_year", mf({"year"},
+                    {"date", "only year"},
+                    date_tuple)),
+
+    # Present
+    ('present', mf(r"[pP]resent", {"date", "present"}, present)),
+
+    # Date range
+    ("range", mf([{"date"}, r"\s*(-|\sto\s|\suntil\s)\s*", {"date"}],
+                 {"range"}, date_range)),
 ]
 
 # Short dates
@@ -132,9 +153,16 @@ def just_dates(text):
     t = OverlayedText(text)
     t.overlay([m for n,m in matchers])
 
-#    pprint([(o.string(), o) for o in t.overlays])
     return [i.value for i in
-            longest_overlap(t.get_overlays(props={'date'}))]
+        longest_overlap(t.get_overlays(props={'date'}))]
+
+def just_ranges(text):
+    t = OverlayedText(text)
+    t.overlay([m for n,m in matchers])
+
+    return [i.value for i in
+        longest_overlap(t.get_overlays(props={'range'}))]
+
 
 if __name__ == "__main__":
     pprint(just_dates("Timestamp: 22071991, well\

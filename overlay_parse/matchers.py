@@ -1,6 +1,6 @@
 import re
 
-from .overlays import Overlay
+from overlays import Overlay
 
 class BaseMatcher(object):
     """
