@@ -169,7 +169,7 @@ class OverlayedText(object):
 
             self.overlays += list(m.offset_overlays(self))
 
-        self.overlays.sort(key=lambda o: o.start)
+        self.overlays.sort(key=lambda o: o.start, reverse=True)
 
     def get_overlays(self, **kw):
         """

@@ -13,7 +13,7 @@ try:
 except ImportError:
     import unittest
 
-from overlay_parse.dates import just_dates, just_ranges
+from overlay_parse.dates import just_dates, just_ranges, just_props
 
 class TestDates(unittest.TestCase):
 
@@ -45,7 +45,15 @@ class TestDates(unittest.TestCase):
     def test_present(self):
         rng = just_ranges("I will stay from July the 20th until today")
 
-        self.assertEqual(rng, [((20, 7, 0), (17, 4, 2014))])
+        self.assertEqual(rng[0][0], (20, 7, 0))
+
+    def test_range_partadbc(self):
+        rng = just_ranges("Jesus was born somewhere in 7-4 BC")
+        self.assertEqual(rng, [((0, 0, -7), (0, 0, -4))])
+
+    def test_combo(self):
+        rng = just_props("Jesus was born somewhere in 7-4 BC and also there are people who just say 8BC", {'date'}, {'range'})
+        self.assertEqual(rng[0], ((0, 0, -7), (0, 0, -4)))
 
     def tearDown(self):
         pass

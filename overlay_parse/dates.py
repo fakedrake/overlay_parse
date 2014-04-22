@@ -1,5 +1,7 @@
-import re
 from datetime import date
+
+import re
+import itertools
 
 from overlays import OverlayedText, Rng
 from matchers import mf
@@ -11,8 +13,12 @@ def month_names(rxmatch):
             return i+1
 
 def date_range(ovls):
-    d1 = ovls[0].value
     d2 = ovls[2].value
+    d1 = ovls[0].value
+
+    if d2[2] < 0 and d1[2] > 0:
+        d, m, y = d1
+        return ((d, m, -y), d2)
 
     for i1,i2 in reversed(zip(d1, d2)):
         if i1 > i2:
@@ -82,22 +88,26 @@ MONTH_NAMES_SHORT = [
 
 matchers = [
     # Regex
-    ('day', mf(r"([012]?[1-9]|3[01])", {'day', 'num'}, rx_int)),
+    ('day', mf(r"([012][1-9]|3[01]|[0-9])", {'day', 'num'}, rx_int)),
 
-    ('day_numeric', mf(w(r"(11th|12th|13th|[012]?[4-9]th|[123]0th|[0-3]1st|[02]2nd|023rd)"),
+    ('day_numeric', mf(w(r"(11th|12th|13th|[012][4-9]th|[4-9]th|[123]0th|[0-3]1st|[02]2nd|023rd)"),
                        {'day', 'numeric'}, rx_int_extra)),
 
     # Note that regexes are greedy. If there is '07' then '7' alone
     # will be ignored
-    ('month', mf(r"(0?[1-9]|1[012])", {'month', 'num'}, rx_int)),
+    ('month', mf(r"(0[1-9]|1[012]|[1-9])", {'month', 'num'}, rx_int)),
 
-    ('year_4', mf(r"\d{4}", {'year', '4dig', 'num', "ad"}, rx_int)),
+    ('year_4', mf(r"\d{4}", {'year', '4dig', 'num'}, rx_int)),
 
-    ('year_num', mf(r"\d+\s*([Aa]\.?[Dd]\.?)?", {'year', 'adbc', 'num', "ad"},
+    ('year_num', mf(w(r"\d+\s*([Aa]\.?[Dd]\.?)"), {'year', 'adbc', 'num', "ad", 'word'},
                     rx_int_extra)),
 
-    ('year_adbc', mf(w(r"\d+\s*([Bb]\.?[Cc]\.?)"), {"year", "adbc", "bc"},
+    ('year_adbc', mf(w(r"\d+\s*([Bb]\.?[Cc]\.?)"), {"year", "adbc", "bc", 'word'},
                      lambda rxmatch: -rx_int_extra(rxmatch))),
+
+    ('year_num_word', mf(w(r"\d{1,4}"), {'year', 'num', 'word'},
+                         rx_int)),
+
 
     ('month_name_short', mf(re.compile(r"(%s)" % "|".join(words(MONTH_NAMES_SHORT)), re.I),
                             {"month", "name", "short"}, month_names)),
@@ -114,22 +124,22 @@ matchers = [
                            {"day_month", "numeric", "date"}, date_tuple)),
 
     # July the 14th 1991
-    ('dayn_month_year_date', mf([{'numeric', 'day_month'}, r"\s+", {"year"}],
+    ('dayn_month_year_date', mf([{'numeric', 'day_month'}, r"\s+", {"year", "word"}],
                                 {"day_month_year", "numeric", "date", "full"},
                                 date_tuple)),
 
     # 14 July 1991
-    ('day_month_year_full', mf([{"day"}, r"\s+(of\s+)?", {"month", "name"}, r"\s+", {"year"}],
+    ('day_month_year_full', mf([{"day"}, r"\s+(of\s+)?", {"month", "name"}, r"\s+", {"year", "word"}],
                                { "day_month_year", "date"},
                                date_tuple)),
 
     # June 1991
-    ("far_year", mf([{"month", "name"}, r"\s+", {"year"}],
+    ("far_year", mf([{"month", "name"}, r"\s+", {"year", "word"}],
                     {"date", "year_month"},
                     date_tuple)),
 
     # 3000AD
-    ("far_year", mf([{"year"}],
+    ("far_year", mf([{"year", 'word'}],
                     {"date", "only_year"},
                     date_tuple)),
 
@@ -138,43 +148,60 @@ matchers = [
 ]
 
 # Short dates
-SEPARATORS = [r"", r"/", r"\.", r"\|", r"-"]
+SEPARATORS = [r"/", r"\.", r"\|", r"-"]
+
+
+matchers += [('ymd_dates_%s' % s,
+              mf([{'year', 'num', 'word'}, s, {'month', 'num'}, s, {'day', 'num'}],
+                 {"date", 'short', 'ymd', "sep_%s"%s}, date_tuple))
+             for s in SEPARATORS]
 
 matchers += [('dmy_dates_%s' % s,
-              mf([{'day', 'num'}, s, {'month', 'num'}, s, {'year', 'num'}],
+              mf([{'day', 'num'}, s, {'month', 'num'}, s, {'year', 'num', 'word'}],
                  {"date", 'short', 'dmy', "sep_%s"%s}, date_tuple))
              for s in SEPARATORS]
 
 matchers += [("mdy_dates_%s" % s,
-              mf([{'month', 'num'}, s, {'day', 'num'}, s, {'year', 'num'}],
+              mf([{'month', 'num'}, s, {'day', 'num'}, s, {'year', 'num', 'word'}],
                  {"date", 'short', 'mdy', "sep_%s"%s}, date_tuple))
              for s in SEPARATORS]
 
-matchers += [('ymd_dates_%s' % s,
-              mf([{'year', 'num'}, s, {'month', 'num'}, s, {'day', 'num'}],
-                 {"date", 'short', 'ymd', "sep_%s"%s}, date_tuple))
-             for s in SEPARATORS]
+
+# Non separated
+
+matchers += [('ymd_dates',
+              mf([{'year', 'num'}, {'month', 'num'}, {'day', 'num'}],
+                 {"date", 'short', 'ymd', "nosep"}, date_tuple)),
+             ('dmy_dates',
+              mf([{'day', 'num'}, {'month', 'num'}, {'year', 'num'}],
+                 {"date", 'short', 'dmy', "nosep"}, date_tuple)),
+             ("mdy_dates",
+              mf([{'month', 'num'}, {'day', 'num'}, {'year', 'num'}],
+                 {"date", 'short', 'mdy', "sep_%s"}, date_tuple)),]
 
 matchers += [
     # Date range
-    ("range", mf([{"date"}, r"\s*(-|\sto\s|\suntil\s)\s*", {"date"}],
+    ("range", mf([{"date"}, r"\s*(-|\sto\s|\suntil\s|\xe2\x80\x93)\s*", {"date"}],
                  {"range"}, date_range)),
 ]
 
 
-def just_dates(text):
+
+def just_props(text, *props_lst):
     t = OverlayedText(text)
     t.overlay([m for n,m in matchers])
+    ovls = itertools.chain(*[t.get_overlays(props=props) for props in
+                             props_lst])
 
-    return [i.value for i in
-            longest_overlap(t.get_overlays(props={'date'}))]
+    return [i.value for i in sorted(longest_overlap(ovls),
+                                    key=lambda o: o.start)]
+
+def just_dates(text):
+    return just_props(text, {'date'})
+
 
 def just_ranges(text):
-    t = OverlayedText(text)
-    t.overlay([m for n,m in matchers])
-
-    return [i.value for i in
-            longest_overlap(t.get_overlays(props={'range'}))]
+    return just_props(text, {'range'})
 
 
 if __name__ == "__main__":
