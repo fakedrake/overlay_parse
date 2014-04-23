@@ -88,7 +88,7 @@ MONTH_NAMES_SHORT = [
 
 matchers = [
     # Regex
-    ('day', mf(r"([012][1-9]|3[01]|[0-9])", {'day', 'num'}, rx_int)),
+    ('day', mf(r"(0[1-9]|[12][0-9]|3[01]|[1-9])", {'day', 'num'}, rx_int)),
 
     ('day_numeric', mf(w(r"(11th|12th|13th|[012][4-9]th|[4-9]th|[123]0th|[0-3]1st|[02]2nd|023rd)"),
                        {'day', 'numeric'}, rx_int_extra)),
@@ -181,7 +181,7 @@ matchers += [('ymd_dates',
 
 matchers += [
     # Date range
-    ("range", mf([{"date"}, r"\s*(-|\sto\s|\suntil\s|\xe2\x80\x93)\s*", {"date"}],
+    ("range", mf([{"date"}, r"\s*(-|\sto\s|\suntil\s|\xe2\x80\x93|\u20132)\s*", {"date"}],
                  {"range"}, date_range)),
 ]
 

@@ -55,6 +55,11 @@ class TestDates(unittest.TestCase):
         rng = just_props("Jesus was born somewhere in 7-4 BC and also there are people who just say 8BC", {'date'}, {'range'})
         self.assertEqual(rng[0], ((0, 0, -7), (0, 0, -4)))
 
+    def test_jamies_bday(self):
+
+        dates = just_dates('{{Birth date and age|1969|7|10|df=y}}')
+        self.assertEqual(dates, [(10,7,1969)])
+
     def tearDown(self):
         pass
 
