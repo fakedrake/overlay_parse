@@ -41,7 +41,7 @@ class RegexMatcher(BaseMatcher):
         self.value_fn = value_fn
         self.props = props
 
-        self.id = str(regex)
+        self.id = unicode(regex)
 
     def offset_overlays(self, text, offset=0, **kw):
         """
@@ -51,7 +51,7 @@ class RegexMatcher(BaseMatcher):
         :returns: An overlay or None
         """
 
-        for m in self.regex.finditer(str(text)[offset:]):
+        for m in self.regex.finditer(unicode(text)[offset:]):
             yield Overlay(text, (offset + m.start(), offset+m.end()),
                           props=self.props,
                           value=self.value(rxmatch=m))
@@ -65,7 +65,7 @@ class RegexMatcher(BaseMatcher):
         if end:
             _text = _text[:end]
 
-        m = self.regex.match(str(_text))
+        m = self.regex.match(unicode(_text))
 
         if m:
             yield Overlay(text, (start + m.start(), start+m.end()),
@@ -89,7 +89,7 @@ class OverlayMatcher(BaseMatcher):
         self.props_match = props_match
         self.props = props or set()
 
-        self.id = str(self.props_match)
+        self.id = unicode(self.props_match)
 
     def offset_overlays(self, text, offset=0, **kw):
         """

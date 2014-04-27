@@ -36,14 +36,14 @@ class TestOverlay(unittest.TestCase):
         self.text.overlay([self.hell, self.o, self.space, hello])
 
     def test_hello(self):
-        self.assertEqual(str(self.text.get_overlays(props={'full'})[0]), "Hello ")
+        self.assertEqual(unicode(self.text.get_overlays(props={'full'})[0]), "Hello ")
 
     def test_mathcer_matcher(self):
         t2 = self.text.copy()
         hello_cool = MatcherMatcher([self.hell, self.o, self.space], {"hello", "smart"})
         t2.overlay([hello_cool])
 
-        self.assertEqual(str(t2.get_overlays(props={'full'})[0]), "Hello ")
+        self.assertEqual(unicode(t2.get_overlays(props={'full'})[0]), "Hello ")
 
     def tearDown(self):
         pass

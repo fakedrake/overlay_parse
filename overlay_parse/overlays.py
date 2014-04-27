@@ -46,7 +46,7 @@ class Overlay(object):
         The text tha this overlay matches.
         """
 
-        return str(self.string())
+        return unicode(self.string())
 
     def __len__(self):
         return  self.end - self.start
@@ -90,10 +90,10 @@ class Overlay(object):
     def __eq__(self, ov):
         return self.start == ov.start and \
             self.end == ov.end and \
-            str(self.text) == str(ov.text)
+            unicode(self.text) == unicode(ov.text)
 
     def __repr__(self):
-        return "<Overlay object at [%d, %d), props: %s, text: '%s'>" % (self.start, self.end, self.props, str(self))
+        return u"<Overlay object at [%d, %d), props: %s, text: '%s'>" % (self.start, self.end, self.props, unicode(self))
 
     def match(self, props=None, rng=None, offset=None):
         """
@@ -132,10 +132,10 @@ class OverlayedText(object):
         return t
 
     def __str__(self):
-        return str(self.text)
+        return unicode(self.text)
 
     def __repr__(self):
-        return str(self.text)
+        return unicode(self.text)
 
     def __getitem__(self, key):
         return OverlayedText(self.text.__getitem__(key),
