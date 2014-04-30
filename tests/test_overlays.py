@@ -45,6 +45,15 @@ class TestOverlay(unittest.TestCase):
 
         self.assertEqual(unicode(t2.get_overlays(props={'full'})[0]), "Hello ")
 
+    def test_unicode_text(self):
+        t = OverlayedText('28 July 1914\xc2\xa0\xe2\x80\x93 11')
+        self.assertEqual(str(t), '28 July 1914\xc2\xa0\xe2\x80\x93 11')
+
+    def test_unicode_matcher(self):
+        m =  mf("rx", {})
+        self.assertEqual(list(m.offset_overlays(u"\xc2\xa0\xe2\x80\x93")), [])
+
+
     def tearDown(self):
         pass
 

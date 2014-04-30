@@ -1,6 +1,6 @@
 import re
 
-from overlays import Overlay
+from overlays import Overlay, OverlayedText
 
 class BaseMatcher(object):
     """
@@ -51,10 +51,16 @@ class RegexMatcher(BaseMatcher):
         :returns: An overlay or None
         """
 
-        for m in self.regex.finditer(unicode(text)[offset:]):
+        # This may be a bit slower but overlayedtext takes care of
+        # unicode issues.
+        if not isinstance(text, OverlayedText):
+            text = OverlayedText(text)
+
+        for m in self.regex.finditer(str(text)[offset:]):
             yield Overlay(text, (offset + m.start(), offset+m.end()),
                           props=self.props,
                           value=self.value(rxmatch=m))
+
 
     def fit_overlays(self, text, start=None, end=None, **kw):
         """
@@ -65,7 +71,7 @@ class RegexMatcher(BaseMatcher):
         if end:
             _text = _text[:end]
 
-        m = self.regex.match(unicode(_text))
+        m = self.regex.match(str(_text))
 
         if m:
             yield Overlay(text, (start + m.start(), start+m.end()),

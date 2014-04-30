@@ -131,8 +131,20 @@ class OverlayedText(object):
         t._ran_matchers = [i for i in self._ran_matchers]
         return t
 
+
+    def __unicode__(self):
+        try:
+            return unicode(self.text)
+        except UnicodeDecodeError:
+            ascii_text = str(self.text).encode('string_escape')
+            return unicode(ascii_text)
+
     def __str__(self):
-        return unicode(self.text)
+        try:
+            return str(self.text)
+        except UnicodeEncodeError:
+            ascii_text = unicode(self.text).encode('unicode_escape')
+            return ascii_text
 
     def __repr__(self):
         return unicode(self.text)
