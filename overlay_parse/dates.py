@@ -187,14 +187,16 @@ matchers += [
 
 
 
-def just_props(text, *props_lst):
+def just_props(text, *props_lst, **kw):
     t = OverlayedText(text)
     t.overlay([m for n,m in matchers])
     ovls = itertools.chain(*[t.get_overlays(props=props) for props in
                              props_lst])
 
-    return [i.value for i in sorted(longest_overlap(ovls),
-                                    key=lambda o: o.start)]
+    values = kw.get('values', True)
+    return [i.value if values else i
+            for i in sorted(longest_overlap(ovls),
+                            key=lambda o: o.start)]
 
 def just_dates(text):
     return just_props(text, {'date'})
