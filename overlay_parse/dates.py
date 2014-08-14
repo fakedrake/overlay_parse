@@ -191,7 +191,7 @@ def just_props(text, *props_lst, **kw):
     t = OverlayedText(text)
     t.overlay([m for n,m in matchers])
     ovls = itertools.chain(*[t.get_overlays(props=props) for props in
-                             props_lst])("range")
+                             props_lst])
 
     values = kw.get('values', True)
     return [i.value if values else i
