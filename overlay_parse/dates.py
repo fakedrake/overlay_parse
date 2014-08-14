@@ -181,7 +181,7 @@ matchers += [('ymd_dates',
 
 matchers += [
     # Date range
-    ("range", mf([{"date"}, r"\s*(-|\sto\s|\suntil\s|\xe2\x80\x93|\u20132)\s*", {"date"}],
+    ("range", mf([{"date"}, r"\s*(-|\sto\s|\suntil\s|\xe2\x80\x93|\u2013)\s*", {"date"}],
                  {"range"}, date_range)),
 ]
 
@@ -191,7 +191,7 @@ def just_props(text, *props_lst, **kw):
     t = OverlayedText(text)
     t.overlay([m for n,m in matchers])
     ovls = itertools.chain(*[t.get_overlays(props=props) for props in
-                             props_lst])
+                             props_lst])("range")
 
     values = kw.get('values', True)
     return [i.value if values else i
