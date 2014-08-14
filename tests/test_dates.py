@@ -34,9 +34,11 @@ class TestDates(unittest.TestCase):
         self.assertIn((0,0,-300), dates)
 
     def test_range(self):
-        rng = just_ranges("I will be there from 2008 to 2009")
-
+        rng = just_ranges(u"I will be there from 2008 to 2009")
         self.assertEqual(rng, [((0, 0, 2008), (0, 0, 2009))])
+
+        rng = just_ranges(u"c. 2001–2002")
+        self.assertEqual(rng, [((0, 0, 2001), (0, 0, 2002))])
 
     def test_range_incoherent(self):
          rng = just_ranges("I will be here from 30th of september 2006 to 18.7.2007")

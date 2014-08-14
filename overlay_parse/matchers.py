@@ -33,7 +33,7 @@ class RegexMatcher(BaseMatcher):
         Provide the regex to be matched.
         """
 
-        if isinstance(regex, str):
+        if isinstance(regex, basestring):
             self.regex = re.compile(regex)
         else:
             self.regex = regex
@@ -56,7 +56,7 @@ class RegexMatcher(BaseMatcher):
         if not isinstance(text, OverlayedText):
             text = OverlayedText(text)
 
-        for m in self.regex.finditer(str(text)[offset:]):
+        for m in self.regex.finditer(unicode(text)[offset:]):
             yield Overlay(text, (offset + m.start(), offset+m.end()),
                           props=self.props,
                           value=self.value(rxmatch=m))
@@ -71,7 +71,10 @@ class RegexMatcher(BaseMatcher):
         if end:
             _text = _text[:end]
 
-        m = self.regex.match(str(_text))
+        if isinstance(_text, unicode):
+            import pdb; pdb.set_trace()
+
+        m = self.regex.match(unicode(_text))
 
         if m:
             yield Overlay(text, (start + m.start(), start+m.end()),
@@ -253,7 +256,7 @@ def mf(pred, props=None, value_fn=None, props_on_match=False):
     if isinstance(pred, BaseMatcher):
         return pred if props_on_match else pred.props
 
-    if isinstance(pred, str) or \
+    if isinstance(pred, basestring) or \
        type(pred).__name__ == 'SRE_Pattern':
         return RegexMatcher(pred, props=props, value_fn=value_fn)
 

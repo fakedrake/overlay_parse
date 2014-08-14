@@ -178,7 +178,6 @@ class OverlayedText(object):
                 continue
 
             self._ran_matchers.append(m)
-
             self.overlays += list(m.offset_overlays(self))
 
         self.overlays.sort(key=lambda o: o.start, reverse=True)
