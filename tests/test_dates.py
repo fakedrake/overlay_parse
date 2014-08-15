@@ -20,6 +20,10 @@ class TestDates(unittest.TestCase):
     def setUp(self):
         pass
 
+    def test_merkam(self):
+        rngs = just_ranges(u"October 1872 – 2 February 1959")
+        self.assertEqual(rngs, [((0, 10, 1872), (2, 2, 1959))])
+
     def test_simple_dates(self):
         dates = just_dates("Timestamp: 22071991: She said she was \
         coming on april the 18th, it's 26 apr 2014 and hope is leaving me.")
