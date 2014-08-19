@@ -230,6 +230,7 @@ matchers += [
 ]
 
 matchers += [
+    # 424/423 BC
     ("conditional_date_slash",
      mf([{"date"},
          ur"\s*/\s*",
@@ -237,7 +238,7 @@ matchers += [
         {"conditional", "slash", "date"},
         date_conditional)),
 
-
+    # 427 or 424
     ("conditional_date_to",
      mf([{"date"},
          ur"\s+or\s+",
