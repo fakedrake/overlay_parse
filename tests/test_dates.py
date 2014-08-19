@@ -40,8 +40,11 @@ class TestDates(unittest.TestCase):
     def test_merkam(self):
         self.td(u"October 1872", [(0, 10, 1872)])
 
-        rngs = just_ranges(u"October 1872 – 2 February 1959")
-        self.assertEqual(rngs, [((0, 10, 1872), (2, 2, 1959))])
+        self.tr(u"October 1872 – 2 February 1959",
+                [((0, 10, 1872), (2, 2, 1959))])
+
+    def test_plato(self):
+        self.td("428/427 or 424/423 BC", [(0, 0, -426)])
 
     def test_simple_dates(self):
         dates = just_dates("Timestamp: 22071991: She said she was \

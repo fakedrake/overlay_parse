@@ -14,22 +14,34 @@ def month_names(rxmatch):
         if starts_with(m, rxmatch.group(0)):
             return i+1
 
-def date_range(ovls):
+def date_mean(d1, d2):
+    return tuple([(i1+i2)/2 for i1, i2 in zip(d1, d2)])
+
+def date_min(d1, d2):
+    for i1, i2 in reversed(zip(d1, d2)):
+        if i2 < i1:
+            return d2, d1
+
+        if i1 < i2:
+            return d1, d2
+
+
+def date_pair(ovls):
     d2 = ovls[2].value
     d1 = ovls[0].value
 
     if d2[2] < 0 and d1[2] > 0:
         d, m, y = d1
-        return ((d, m, -y), d2)
+        return date_min((d, m, -y), d2)
 
-    for i1,i2 in reversed(zip(d1, d2)):
-        if i1 > i2:
-            return (d2, d1)
+    return date_min(d1, d2)
 
-        if i2 > i1:
-            return (d1, d2)
+def date_range(ovls):
+    return date_pair(ovls)
 
-    return (d1, d2)
+def date_conditional(ovls):
+    e, o = date_pair(ovls)
+    return date_mean(e, o)
 
 def present(rxmatch):
     d = date.today()
@@ -210,11 +222,28 @@ matchers += [
                  {"range"}, date_range)),
 
     # November 20, 1876 in Shusha, Russian Empire – February 1, 1944 in Yerevan
-    ("range", mf([{"date"},
-                  ur"\s+in\s+.*(-|\sto\s|\suntil\s|\xe2\x80\x93|\u2013)\s*",
-                  {"date"}],
-                 {"range", "with_place"}, date_range)),
+    ("range_place", mf([{"date"},
+                        ur"\s+in\s+.*(-|\sto\s|\suntil\s|\xe2\x80\x93|\u2013)\s*",
+                        {"date"}],
+                       {"range", "with_place"}, date_range)),
 
+]
+
+matchers += [
+    ("conditional_date_slash",
+     mf([{"date"},
+         ur"\s*/\s*",
+         {"date"}],
+        {"conditional", "slash", "date"},
+        date_conditional)),
+
+
+    ("conditional_date_to",
+     mf([{"date"},
+         ur"\s+or\s+",
+         {"date"}],
+        {"conditional", "or", "date"},
+        date_conditional)),
 ]
 
 
