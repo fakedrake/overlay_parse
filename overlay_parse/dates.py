@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from datetime import date
 
 import re
@@ -61,7 +63,8 @@ def longest_overlap(ovls):
     From a list of overlays if any overlap keep the longest.
     """
 
-    ovls = sorted(ovls, key=lambda x: x.end-x.start)
+    # Ovls know how to compare to each other.
+    ovls = sorted(ovls)
 
     # I know this could be better but ovls wont be more than 50 or so.
     for i, s in enumerate(ovls):
@@ -88,7 +91,10 @@ MONTH_NAMES_SHORT = [
 
 matchers = [
     # Regex
-    ('day', mf(r"(0[1-9]|[12][0-9]|3[01]|[1-9])", {'day', 'num'}, rx_int)),
+    ('day', mf(r"(0[1-9]|[12][0-9]|3[01]|[1-9])",
+               {'day', 'num'}, rx_int)),
+    ('day', mf(w(r"(0[1-9]|[12][0-9]|3[01]|[1-9])"),
+               {'day', 'num', 'word'}, rx_int)),
 
     ('day_numeric', mf(w(r"(11th|12th|13th|[012][4-9]th|[4-9]th|[123]0th|[0-3]1st|[02]2nd|023rd)"),
                        {'day', 'numeric'}, rx_int_extra)),
@@ -119,29 +125,46 @@ matchers = [
     # be a dependency
 
     # Lists
+
+    # June 1991
+    ("far_year", mf([{"month", "name"}, r"\s+", {"year", '4dig'}],
+                    {"date", "year_month"},
+                    date_tuple)),
+
     # July the 14th
-    ('dayn_month_date', mf([{'month', 'name'}, r",?\s*(the)?\s+", {'day', 'numeric'}],
+    ('dayn_month_date', mf([{'month', 'name'},
+                            r",?\s*(the)?\s+",
+                            {'day', 'numeric'}],
                            {"day_month", "numeric", "date"}, date_tuple)),
 
+    # July 14
+    ('dayn_month_date', mf([{'month', 'name'}, r"\s+", {'day', 'word'}],
+                           {"day_month", "date"}, date_tuple)),
+
+
     # July the 14th 1991
-    ('dayn_month_year_date', mf([{'numeric', 'day_month'}, r"\s+", {"year", "word"}],
+    ('dayn_month_year_date', mf([{'day_month'}, ur"(\s+|\s*,\s*)",
+                                 {"year", "word"}],
                                 {"day_month_year", "numeric", "date", "full"},
                                 date_tuple)),
 
     # 14 July 1991
-    ('day_month_year_full', mf([{"day"}, r"\s+(of\s+)?", {"month", "name"}, r"\s+", {"year", "word"}],
+    ('day_month_year_full', mf([{"day"}, r"\s+(of\s+)?",
+                                {"month", "name"}, r"\s+",
+                                {"year", "word"}],
                                { "day_month_year", "date"},
                                date_tuple)),
-
-    # June 1991
-    ("far_year", mf([{"month", "name"}, r"\s+", {"year", "word"}],
-                    {"date", "year_month"},
-                    date_tuple)),
 
     # 3000AD
     ("far_year", mf([{"year", 'word'}],
                     {"date", "only_year"},
                     date_tuple)),
+
+    # July 13, 1991
+    ('month_day_year', mf([{'day_month'}, ur"(\s+|\s*,?\s*)", "year"],
+                          {"month_day_year", "date"},
+                          date_tuple)),
+
 
     # Present
     ('present', mf(r"([pP]resent|[Tt]oday|[Nn]ow)", {"date", "present"}, present)),
@@ -185,6 +208,13 @@ matchers += [
                   ur"\s*(-|\sto\s|\suntil\s|\xe2\x80\x93|\u2013)\s*",
                   {"date"}],
                  {"range"}, date_range)),
+
+    # # November 20, 1876 in Shusha, Russian Empire – February 1, 1944 in Yerevan
+    # ("range", mf([{"date"},
+    #               ur"\s*(-|\sto\s|\suntil\s|\xe2\x80\x93|\u2013)\s*",
+    #               {"date"}],
+    #              {"range"}, date_range)),
+
 ]
 
 

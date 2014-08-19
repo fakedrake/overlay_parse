@@ -21,8 +21,15 @@ class Overlay(object):
         self.start = start
         self.end = end
         self.value = value
+        self.priority = False
 
         self.set_props(props)
+
+    def __lt__(self, ovl):
+        if self.priority < ovl.priority:
+            return True
+
+        return len(self) < len(ovl)
 
     def set_props(self, props=None):
         """

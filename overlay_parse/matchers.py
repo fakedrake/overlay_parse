@@ -248,23 +248,28 @@ class MatcherMatcher(BaseMatcher):
             yield i
 
 
-def mf(pred, props=None, value_fn=None, props_on_match=False):
+def mf(pred, props=None, value_fn=None, props_on_match=False, priority=None):
     """
     Matcher factory.
     """
 
     if isinstance(pred, BaseMatcher):
-        return pred if props_on_match else pred.props
+        ret = pred if props_on_match else pred.props
 
     if isinstance(pred, basestring) or \
        type(pred).__name__ == 'SRE_Pattern':
-        return RegexMatcher(pred, props=props, value_fn=value_fn)
+        ret = RegexMatcher(pred, props=props, value_fn=value_fn)
 
     if isinstance(pred, set):
         return OverlayMatcher(pred, props=props, value_fn=value_fn)
 
     if isinstance(pred, list):
         deps = [p for p in pred if isinstance(p, BaseMatcher)]
-        return ListMatcher([mf(p, props_on_match=True) for p in pred],
+        ret = ListMatcher([mf(p, props_on_match=True) for p in pred],
                            props=props, value_fn=value_fn,
                            dependencies=deps)
+
+    if priority is not None:
+        ret.priority = priority
+
+    return ret

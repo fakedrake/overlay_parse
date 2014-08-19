@@ -17,10 +17,20 @@ from overlay_parse.dates import just_dates, just_ranges, just_props
 
 class TestDates(unittest.TestCase):
 
+    def td(self, text, dates):
+        res = just_dates(text)
+        self.assertEqual(res,
+                         dates, "Text: '%s'" % text)
+
     def setUp(self):
         pass
 
+    def test_day(self):
+        self.td(u"December 1666", [(0, 12, 1666)])
+
     def test_merkam(self):
+        self.td(u"October 1872", [(0, 10, 1872)])
+
         rngs = just_ranges(u"October 1872 – 2 February 1959")
         self.assertEqual(rngs, [((0, 10, 1872), (2, 2, 1959))])
 
@@ -52,6 +62,10 @@ class TestDates(unittest.TestCase):
         rng = just_ranges("I will stay from July the 20th until today")
 
         self.assertEqual(rng[0][0], (20, 7, 0))
+
+    def test_day_year(self):
+        self.td(u"November 20, 1876 in Shusha, Russian Empire ",
+                [(20, 11, 1876)])
 
     def test_range_partadbc(self):
         rng = just_ranges("Jesus was born somewhere in 7-4 BC")
