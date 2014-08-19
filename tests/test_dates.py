@@ -22,11 +22,20 @@ class TestDates(unittest.TestCase):
         self.assertEqual(res,
                          dates, "Text: '%s'" % text)
 
+    def tr(self, text, dates):
+        res = just_ranges(text)
+        self.assertEqual(res,
+                         dates, "Text: '%s'" % text)
+
     def setUp(self):
         pass
 
     def test_day(self):
         self.td(u"December 1666", [(0, 12, 1666)])
+
+    def test_range_with_place(self):
+        self.tr(u"November 20, 1876 in Shusha, Russian Empire – February 1, 1944 in Yerevan",
+                [((20, 11, 1876), (1, 2, 1944))])
 
     def test_merkam(self):
         self.td(u"October 1872", [(0, 10, 1872)])

@@ -209,11 +209,11 @@ matchers += [
                   {"date"}],
                  {"range"}, date_range)),
 
-    # # November 20, 1876 in Shusha, Russian Empire – February 1, 1944 in Yerevan
-    # ("range", mf([{"date"},
-    #               ur"\s*(-|\sto\s|\suntil\s|\xe2\x80\x93|\u2013)\s*",
-    #               {"date"}],
-    #              {"range"}, date_range)),
+    # November 20, 1876 in Shusha, Russian Empire – February 1, 1944 in Yerevan
+    ("range", mf([{"date"},
+                  ur"\s+in\s+.*(-|\sto\s|\suntil\s|\xe2\x80\x93|\u2013)\s*",
+                  {"date"}],
+                 {"range", "with_place"}, date_range)),
 
 ]
 
