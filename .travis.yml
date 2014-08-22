@@ -9,3 +9,11 @@ script:
     - flake8 setup.py overlay_parse tests
 after_success:
   - coveralls
+
+notifications:
+  email:
+    recipients:
+      - cperivol@csail.mit.edu
+
+    on_success: always
+    on_failure: always
