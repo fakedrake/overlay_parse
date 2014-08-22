@@ -36,7 +36,7 @@ class TestDates(unittest.TestCase):
 
     def test_range_with_place(self):
         self.tr(u"November 20, 1876 in Shusha,"
-                "Russian Empire – February 1, 1944 in Yerevan",
+                u"Russian Empire – February 1, 1944 in Yerevan",
                 [((20, 11, 1876), (1, 2, 1944))])
 
     def test_merkam(self):
@@ -88,8 +88,8 @@ class TestDates(unittest.TestCase):
 
     def test_combo(self):
         rng = just_props(
-            "Jesus was born somewhere in 7-4 BC and also there are people"
-            "who just say 8BC",
+            u"Jesus was born somewhere in 7-4 BC and also there are people"
+            u"who just say 8BC",
             {'date'},
             {'range'})
         self.assertEqual(rng[0], ((0, 0, -7), (0, 0, -4)))
