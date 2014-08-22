@@ -58,7 +58,6 @@ class TestOverlay(unittest.TestCase):
         m = mf("rx", {})
         self.assertEqual(list(m.offset_overlays(u"\xc2\xa0\xe2\x80\x93")), [])
 
-
     def tearDown(self):
         pass
 
