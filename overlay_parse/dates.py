@@ -5,17 +5,20 @@ from datetime import date
 import re
 import itertools
 
-from overlays import OverlayedText, Rng
-from matchers import mf
-from util import *
+from .overlays import OverlayedText
+from .matchers import mf
+from .util import w, words, starts_with, rx_int, rx_int_extra, Rng
+
 
 def month_names(rxmatch):
-    for i,m in enumerate(MONTH_NAMES_LONG):
+    for i, m in enumerate(MONTH_NAMES_LONG):
         if starts_with(m, rxmatch.group(0)):
-            return i+1
+            return i + 1
+
 
 def date_mean(d1, d2):
-    return tuple([(i1+i2)/2 for i1, i2 in zip(d1, d2)])
+    return tuple([(i1 + i2) / 2 for i1, i2 in zip(d1, d2)])
+
 
 def date_min(d1, d2):
     for i1, i2 in reversed(zip(d1, d2)):
@@ -36,16 +39,20 @@ def date_pair(ovls):
 
     return date_min(d1, d2)
 
+
 def date_range(ovls):
     return date_pair(ovls)
+
 
 def date_conditional(ovls):
     e, o = date_pair(ovls)
     return date_mean(e, o)
 
+
 def present(rxmatch):
     d = date.today()
     return (d.day, d.month, d.year)
+
 
 def date_tuple(ovls):
     """
@@ -70,6 +77,7 @@ def date_tuple(ovls):
 
     return (day, month, year)
 
+
 def longest_overlap(ovls):
     """
     From a list of overlays if any overlap keep the longest.
@@ -82,7 +90,7 @@ def longest_overlap(ovls):
     for i, s in enumerate(ovls):
         passing = True
 
-        for l in ovls[i+1:]:
+        for l in ovls[i + 1:]:
             if s.start in Rng(l.start, l.end, rng=(True, True)) or \
                s.end in Rng(l.start, l.end, rng=(True, True)):
                 passing = False
@@ -108,7 +116,8 @@ matchers = [
     ('day', mf(w(r"(0[1-9]|[12][0-9]|3[01]|[1-9])"),
                {'day', 'num', 'word'}, rx_int)),
 
-    ('day_numeric', mf(w(r"(11th|12th|13th|[012][4-9]th|[4-9]th|[123]0th|[0-3]1st|[02]2nd|023rd)"),
+    ('day_numeric', mf(w(r"(11th|12th|13th|[012][4-9]th|[4-9]th|[123]0th|[0-3]"
+                         "1st|[02]2nd|023rd)"),
                        {'day', 'numeric'}, rx_int_extra)),
 
     # Note that regexes are greedy. If there is '07' then '7' alone
@@ -117,21 +126,25 @@ matchers = [
 
     ('year_4', mf(r"\d{4}", {'year', '4dig', 'num'}, rx_int)),
 
-    ('year_num', mf(w(r"\d+\s*([Aa]\.?[Dd]\.?)"), {'year', 'adbc', 'num', "ad", 'word'},
+    ('year_num', mf(w(r"\d+\s*([Aa]\.?[Dd]\.?)"), {'year', 'adbc', 'num',
+                                                   "ad", 'word'},
                     rx_int_extra)),
 
-    ('year_adbc', mf(w(r"\d+\s*([Bb]\.?[Cc]\.?([Ee]\.?)?)"), {"year", "adbc", "bc", 'word'},
+    ('year_adbc', mf(w(r"\d+\s*([Bb]\.?[Cc]\.?([Ee]\.?)?)"), {"year", "adbc",
+                                                              "bc", 'word'},
                      lambda rxmatch: -rx_int_extra(rxmatch))),
 
     ('year_num_word', mf(w(r"\d{1,4}"), {'year', 'num', 'word'},
                          rx_int)),
 
 
-    ('month_name_short', mf(re.compile(r"(%s)" % "|".join(words(MONTH_NAMES_SHORT)), re.I),
-                            {"month", "name", "short"}, month_names)),
+    ('month_name_short', mf(
+        re.compile(r"(%s)" % "|".join(words(MONTH_NAMES_SHORT)), re.I),
+        {"month", "name", "shorte"}, month_names)),
 
-    ('month_name_long', mf(re.compile(r"(%s)" % "|".join(words(MONTH_NAMES_LONG)), re.I),
-                           {"month", "name", "long"}, month_names)),
+    ('month_name_long', mf(
+        re.compile(r"(%s)" % "|".join(words(MONTH_NAMES_LONG)), re.I),
+        {"month", "name", "long"}, month_names)),
 
     # Note that instead of rx or sets you can use a matcher, it will
     # be a dependency
@@ -164,7 +177,7 @@ matchers = [
     ('day_month_year_full', mf([{"day"}, r"\s+(of\s+)?",
                                 {"month", "name"}, r"\s+",
                                 {"year", "word"}],
-                               { "day_month_year", "date"},
+                               {"day_month_year", "date"},
                                date_tuple)),
 
     # 3000AD
@@ -179,7 +192,8 @@ matchers = [
 
 
     # Present
-    ('present', mf(r"([pP]resent|[Tt]oday|[Nn]ow)", {"date", "present"}, present)),
+    ('present', mf(
+        r"([pP]resent|[Tt]oday|[Nn]ow)", {"date", "present"}, present)),
 ]
 
 # Short dates
@@ -187,18 +201,21 @@ SEPARATORS = [r"/", r"\.", r"\|", r"-"]
 
 
 matchers += [('ymd_dates_%s' % s,
-              mf([{'year', 'num', 'word'}, s, {'month', 'num'}, s, {'day', 'num'}],
-                 {"date", 'short', 'ymd', "sep_%s"%s}, date_tuple))
+              mf([{'year', 'num', 'word'}, s, {'month', 'num'},
+                  s, {'day', 'num'}],
+                 {"date", 'short', 'ymd', "sep_%s" % s}, date_tuple))
              for s in SEPARATORS]
 
 matchers += [('dmy_dates_%s' % s,
-              mf([{'day', 'num'}, s, {'month', 'num'}, s, {'year', 'num', 'word'}],
-                 {"date", 'short', 'dmy', "sep_%s"%s}, date_tuple))
+              mf([{'day', 'num'}, s, {'month', 'num'}, s,
+                  {'year', 'num', 'word'}],
+                 {"date", 'short', 'dmy', "sep_%s" % s}, date_tuple))
              for s in SEPARATORS]
 
 matchers += [("mdy_dates_%s" % s,
-              mf([{'month', 'num'}, s, {'day', 'num'}, s, {'year', 'num', 'word'}],
-                 {"date", 'short', 'mdy', "sep_%s"%s}, date_tuple))
+              mf([{'month', 'num'}, s, {'day', 'num'}, s,
+                  {'year', 'num', 'word'}],
+                 {"date", 'short', 'mdy', "sep_%s" % s}, date_tuple))
              for s in SEPARATORS]
 
 
@@ -212,7 +229,7 @@ matchers += [('ymd_dates',
                  {"date", 'short', 'dmy', "nosep"}, date_tuple)),
              ("mdy_dates",
               mf([{'month', 'num'}, {'day', 'num'}, {'year', 'num'}],
-                 {"date", 'short', 'mdy', "sep_%s"}, date_tuple)),]
+                 {"date", 'short', 'mdy', "sep_%s"}, date_tuple)), ]
 
 matchers += [
     # Date range
@@ -223,7 +240,8 @@ matchers += [
 
     # November 20, 1876 in Shusha, Russian Empire – February 1, 1944 in Yerevan
     ("range_place", mf([{"date"},
-                        ur"\s+in\s+.*(-|\sto\s|\suntil\s|\xe2\x80\x93|\u2013)\s*",
+                        ur"\s+in\s+.*(-|\sto\s|\suntil\s|\xe2\x80\x93|\u2013)"
+                        "\s*",
                         {"date"}],
                        {"range", "with_place"}, date_range)),
 
@@ -248,7 +266,6 @@ matchers += [
 ]
 
 
-
 def just_props(text, *props_lst, **kw):
     t = OverlayedText(text)
     t.overlay([m for n, m in matchers])
@@ -259,6 +276,7 @@ def just_props(text, *props_lst, **kw):
     return [i.value if values else i
             for i in sorted(longest_overlap(ovls),
                             key=lambda o: o.start)]
+
 
 def just_dates(text):
     return just_props(text, {'date'})

@@ -3,8 +3,10 @@
 __author__ = 'Chris Perivolaropoulos'
 __email__ = 'cperivol@csail.mit.edu'
 __url__ = 'https://github.com/fakedrake/overlay_parse'
-__version__ = '0.0.1'
+__version__ = '1.0'
 
-import dates
-import matchers
-import overlays
+from . import dates
+from . import matchers
+from . import overlays
+
+__all__ = ['dates', 'matchers', 'overlays']

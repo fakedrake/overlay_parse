@@ -2,12 +2,12 @@
 Regular Expression Hierarchical Parsing.
 """
 
-import re
+from .util import Rng
 
-from util import Rng
 
 class Overlay(object):
-    def __init__(self, text, (start, end), props=None, value=None):
+
+    def __init__(self, text, rng, props=None, value=None):
         """
         :param text: The text this overlay refers to.
         :param start: The starting index of the overlay.
@@ -16,7 +16,7 @@ class Overlay(object):
         overlay.
         :param value: The value that this text represents.
         """
-
+        (start, end) = rng
         self.text = text
         self.start = start
         self.end = end
@@ -56,7 +56,7 @@ class Overlay(object):
         return unicode(self.string())
 
     def __len__(self):
-        return  self.end - self.start
+        return self.end - self.start
 
     def before(self):
         """
@@ -100,7 +100,8 @@ class Overlay(object):
             unicode(self.text) == unicode(ov.text)
 
     def __repr__(self):
-        return u"<Overlay object at [%d, %d), props: %s, text: '%s'>" % (self.start, self.end, self.props, unicode(self))
+        return u"<Overlay object at [%d, %d), props: %s, text: '%s'>" % (
+            self.start, self.end, self.props, unicode(self))
 
     def match(self, props=None, rng=None, offset=None):
         """
@@ -117,13 +118,14 @@ class Overlay(object):
         else:
             e = s = None
 
-        return ((e is None or self.end == e) and \
+        return ((e is None or self.end == e) and
                 (s is None or self.start == s)) and \
             (props is None or props.issubset(self.props)) and \
             (offset is None or self.start >= offset)
 
 
 class OverlayedText(object):
+
     """
     Both the text and it's overlays.
     """
@@ -137,7 +139,6 @@ class OverlayedText(object):
         t = OverlayedText(self.text, [o.copy() for o in self.overlays])
         t._ran_matchers = [i for i in self._ran_matchers]
         return t
-
 
     def __unicode__(self):
         try:
@@ -170,7 +171,7 @@ class OverlayedText(object):
         else:
             s = e = key
 
-        return [o for o in self.overlays if o.start in Rng(s,e)]
+        return [o for o in self.overlays if o.start in Rng(s, e)]
 
     def overlay(self, matchers, force=False):
         """
@@ -195,7 +196,3 @@ class OverlayedText(object):
         """
 
         return [o for o in self.overlays if o.match(**kw)]
-
-
-if __name__ == "__main__":
-    _main()

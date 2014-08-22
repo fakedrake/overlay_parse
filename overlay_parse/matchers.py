@@ -1,8 +1,11 @@
 import re
 
-from overlays import Overlay, OverlayedText
+from .overlays import Overlay, OverlayedText
+from functools import reduce
+
 
 class BaseMatcher(object):
+
     """
     An interface for Matcher objects.
     """
@@ -24,6 +27,7 @@ class BaseMatcher(object):
 
 
 class RegexMatcher(BaseMatcher):
+
     """
     Regex matching for matching.
     """
@@ -57,10 +61,9 @@ class RegexMatcher(BaseMatcher):
             text = OverlayedText(text)
 
         for m in self.regex.finditer(unicode(text)[offset:]):
-            yield Overlay(text, (offset + m.start(), offset+m.end()),
+            yield Overlay(text, (offset + m.start(), offset + m.end()),
                           props=self.props,
                           value=self.value(rxmatch=m))
-
 
     def fit_overlays(self, text, start=None, end=None, **kw):
         """
@@ -71,17 +74,16 @@ class RegexMatcher(BaseMatcher):
         if end:
             _text = _text[:end]
 
-        if isinstance(_text, unicode):
-            import pdb; pdb.set_trace()
-
         m = self.regex.match(unicode(_text))
 
         if m:
-            yield Overlay(text, (start + m.start(), start+m.end()),
+            yield Overlay(text, (start + m.start(), start + m.end()),
                           props=self.props,
                           value=self.value(rxmatch=m))
 
+
 class OverlayMatcher(BaseMatcher):
+
     """
     Match a matcher. A matcher matches in 3 ways:
     - Freely with an offset
@@ -123,7 +125,9 @@ class OverlayMatcher(BaseMatcher):
             if ovl.match(props=self.props_match, rng=(start, end)):
                 yield ovl
 
+
 class ListMatcher(BaseMatcher):
+
     """
     Match as a concatenated series of other matchers. It is greedy in
     the snse that it just matches everything.
@@ -143,7 +147,7 @@ class ListMatcher(BaseMatcher):
         Merge ovls and also setup the value and props.
         """
 
-        ret = reduce(lambda x,y: x.merge(y), ovls)
+        ret = reduce(lambda x, y: x.merge(y), ovls)
         ret.value = self.value(ovls=ovls)
         ret.set_props(self.props)
         return ret
@@ -161,7 +165,6 @@ class ListMatcher(BaseMatcher):
         else:
             yield []
 
-
     def offset_overlays(self, text, offset=0, run_deps=True, **kw):
         """
         The heavy lifting is done by fit_overlays. Override just that for
@@ -171,7 +174,6 @@ class ListMatcher(BaseMatcher):
         if run_deps and self.dependencies:
             text.overlay(self.dependencies)
 
-        value_ovls = []
         for ovlf in self.matchers[0].offset_overlays(text,
                                                      goffset=offset,
                                                      **kw):
@@ -197,7 +199,9 @@ class ListMatcher(BaseMatcher):
 
             yield self._merge_ovls(ret)
 
+
 class MatcherMatcher(BaseMatcher):
+
     """
     Match the matchers.
     """
@@ -207,7 +211,8 @@ class MatcherMatcher(BaseMatcher):
         self.props = props
         self.value_fn = value_fn
 
-        self._list_match = ListMatcher([OverlayMatcher(m.props) for m in matchers], props=self.props)
+        self._list_match = ListMatcher(
+            [OverlayMatcher(m.props) for m in matchers], props=self.props)
         self._overlayed_already = []
 
     def _maybe_run_matchers(self, text, run_matchers):
@@ -220,7 +225,6 @@ class MatcherMatcher(BaseMatcher):
            (run_matchers is not False and text not in self._overlayed_already):
             text.overlay(self.matchers)
             self._overlayed_already.append(text)
-
 
     def fit_overlays(self, text, run_matchers=None, **kw):
         """
@@ -266,8 +270,8 @@ def mf(pred, props=None, value_fn=None, props_on_match=False, priority=None):
     if isinstance(pred, list):
         deps = [p for p in pred if isinstance(p, BaseMatcher)]
         ret = ListMatcher([mf(p, props_on_match=True) for p in pred],
-                           props=props, value_fn=value_fn,
-                           dependencies=deps)
+                          props=props, value_fn=value_fn,
+                          dependencies=deps)
 
     if priority is not None:
         ret.priority = priority
