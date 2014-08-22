@@ -15,6 +15,7 @@ except ImportError:
 
 from overlay_parse.dates import just_dates, just_ranges, just_props
 
+
 class TestDates(unittest.TestCase):
 
     def td(self, text, dates):
@@ -34,7 +35,8 @@ class TestDates(unittest.TestCase):
         self.td(u"December 1666", [(0, 12, 1666)])
 
     def test_range_with_place(self):
-        self.tr(u"November 20, 1876 in Shusha, Russian Empire – February 1, 1944 in Yerevan",
+        self.tr(u"November 20, 1876 in Shusha,"
+                "Russian Empire – February 1, 1944 in Yerevan",
                 [((20, 11, 1876), (1, 2, 1944))])
 
     def test_merkam(self):
@@ -57,7 +59,7 @@ class TestDates(unittest.TestCase):
     def test_bc(self):
         dates = just_dates("200 AD 300 b.c.")
 
-        self.assertIn((0,0,-300), dates)
+        self.assertIn((0, 0, -300), dates)
 
     def test_range(self):
         rng = just_ranges(u"I will be there from 2008 to 2009")
@@ -67,8 +69,9 @@ class TestDates(unittest.TestCase):
         self.assertEqual(rng, [((0, 0, 2001), (0, 0, 2002))])
 
     def test_range_incoherent(self):
-         rng = just_ranges("I will be here from 30th of september 2006 to 18.7.2007")
-         self.assertEqual(rng, [((30, 9, 2006), (18, 7, 2007))])
+        rng = just_ranges(
+            "I will be here from 30th of september 2006 to 18.7.2007")
+        self.assertEqual(rng, [((30, 9, 2006), (18, 7, 2007))])
 
     def test_present(self):
         rng = just_ranges("I will stay from July the 20th until today")
@@ -84,13 +87,17 @@ class TestDates(unittest.TestCase):
         self.assertEqual(rng, [((0, 0, -7), (0, 0, -4))])
 
     def test_combo(self):
-        rng = just_props("Jesus was born somewhere in 7-4 BC and also there are people who just say 8BC", {'date'}, {'range'})
+        rng = just_props(
+            "Jesus was born somewhere in 7-4 BC and also there are people"
+            "who just say 8BC",
+            {'date'},
+            {'range'})
         self.assertEqual(rng[0], ((0, 0, -7), (0, 0, -4)))
 
     def test_jamies_bday(self):
 
         dates = just_dates('{{Birth date and age|1969|7|10|df=y}}')
-        self.assertEqual(dates, [(10,7,1969)])
+        self.assertEqual(dates, [(10, 7, 1969)])
 
     def tearDown(self):
         pass
