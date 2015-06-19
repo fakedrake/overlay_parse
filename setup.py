@@ -6,7 +6,7 @@ metadata = dict(re.findall("__([a-z]+)__ = '([^']+)'", init_py))
 metadata['doc'] = re.findall('"""(.+)"""', init_py)[0]
 
 setup(
-    name='overlay_parse',
+    name='overlay-parse',
     version=metadata['version'],
     description=metadata['doc'],
     author=metadata['author'],
