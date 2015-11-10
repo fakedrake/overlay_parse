@@ -38,7 +38,7 @@ class RegexMatcher(BaseMatcher):
         """
 
         if isinstance(regex, basestring):
-            self.regex = re.compile(regex)
+            self.regex = re.compile(regex, re.UNICODE)
         else:
             self.regex = regex
 

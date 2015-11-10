@@ -100,7 +100,8 @@ class TestDates(unittest.TestCase):
         self.assertEqual(dates, [(10, 7, 1969)])
 
     def test_mozzart_regression(self):
-        dates = just_ranges(u"German: [?v?lf?a? ama?de??s ?mo?tsa?t], English see fn.;[1] 27 January 1756 \u2013 5 December 1791")
+        date = u'German: [\u02c8v\u0254lf\u0261a\u014b ama\u02c8de\u02d0\u028as \u02c8mo\u02d0tsa\u0281t], English see fn.;[1] 27 January 1756\xa0\u2013 5 December 1791'
+        dates = just_ranges(date)
         self.assertEqual(dates, [((27, 1, 1756), (5, 12, 1791))])
 
     def tearDown(self):
