@@ -231,17 +231,17 @@ matchers += [('ymd_dates',
               mf([{'month', 'num'}, {'day', 'num'}, {'year', 'num'}],
                  {"date", 'short', 'mdy', "sep_%s"}, date_tuple)), ]
 
+range_symbols = ur"(-|\sto\s|\suntil\s|\xe2\x80\x93|\xe2\x80\x94|\u2013|\u2014)"
 matchers += [
     # Date range
     ("range", mf([{"date"},
-                  ur"\s*(-|\sto\s|\suntil\s|\xe2\x80\x93|\u2013)\s*",
+                  ur"\s*"+ range_symbols + ur"\s*",
                   {"date"}],
                  {"range"}, date_range)),
 
     # November 20, 1876 in Shusha, Russian Empire – February 1, 1944 in Yerevan
     ("range_place", mf([{"date"},
-                        ur"\s+in\s+.*(-|\sto\s|\suntil\s|\xe2\x80\x93|\u2013)"
-                        "\s*",
+                        ur"\s+in\s+.*" + range_symbols + ur"\s*",
                         {"date"}],
                        {"range", "with_place"}, date_range)),
 

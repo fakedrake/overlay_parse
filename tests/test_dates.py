@@ -99,6 +99,10 @@ class TestDates(unittest.TestCase):
         dates = just_dates('{{Birth date and age|1969|7|10|df=y}}')
         self.assertEqual(dates, [(10, 7, 1969)])
 
+    def test_mozzart_regression(self):
+        dates = just_ranges(u"German: [?v?lf?a? ama?de??s ?mo?tsa?t], English see fn.;[1] 27 January 1756 \u2013 5 December 1791")
+        self.assertEqual(dates, [((27, 1, 1756), (5, 12, 1791))])
+
     def tearDown(self):
         pass
 
